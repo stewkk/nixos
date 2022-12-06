@@ -197,6 +197,7 @@
         email = "aistarovoytov@yandex.ru";
         name = "Alexandr Starovoytov";
       };
+      commit.gpgsign = true;
     };
   };
   services.pcscd.enable = true;
