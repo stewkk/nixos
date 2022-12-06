@@ -96,7 +96,21 @@ keys = [ # A list of available commands that can be bound to keys can be found
     
 ]
 
-groups = [Group(i) for i in "123456789"]
+groups = [Group(i) for i in "1234567890"]
+
+def go_to_group(group):
+    def f(qtile):
+        if len(qtile.screens) == 1:
+            qtile.groups_map[group].toscreen()
+            return
+        if group == '0':
+            qtile.cmd_to_screen(0)
+            qtile.groups_map[group].cmd_toscreen()
+        else:
+            qtile.cmd_to_screen(1)
+            qtile.groups_map[group].cmd_toscreen()
+
+    return f
 
 for i in groups:
     keys.extend(
@@ -105,7 +119,7 @@ for i in groups:
             Key(
                 [mod],
                 i.name,
-                lazy.group[i.name].toscreen(),
+                lazy.function(go_to_group(i.name)),
                 desc="Switch to group {}".format(i.name),
             ),
             # mod1 + shift + letter of group = switch to & move focused window to group
@@ -171,6 +185,7 @@ screens = [
                     inactive = colors[2],
                     foreground = colors[2],
                     background = colors[0],
+                    visible_groups = ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
                 ),
                 widget.Prompt(
                     foreground = colors[2],
