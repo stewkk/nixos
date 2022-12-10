@@ -99,13 +99,16 @@
 
     programs.bash = {
       enable = true;
-      bashrcExtra = "set -o vi";
-        sessionVariables = {
-          EDITOR = "nvim";
-          BROWSER = "chromium";
-          TERMINAL = "kitty";
-        };
-        initExtra = ''
+      bashrcExtra = ''
+        set -o vi
+        eval "$(direnv hook bash)"
+      '';
+      sessionVariables = {
+        EDITOR = "nvim";
+        BROWSER = "chromium";
+        TERMINAL = "kitty";
+      };
+      initExtra = ''
           . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
         '';
     };
@@ -121,6 +124,9 @@
 
       foliate # epub
       zathura # pdf
+
+      man-pages
+      man-pages-posix
     ];
 
     programs.kitty = {
@@ -190,6 +196,9 @@
     mpv
     lightlocker
     pinentry-gtk2
+    gnumake
+    clang-tools
+    direnv
   ];
 
   programs.git = {
@@ -203,6 +212,8 @@
     };
   };
   services.pcscd.enable = true;
+
+  services.lorri.enable = true;
 
   programs.gnupg.agent = {
     enable = true;
@@ -252,6 +263,8 @@
       setw -g mode-keys vi
     '';
   };
+
+  documentation.dev.enable = true;
 
   services.blueman.enable = true;
   hardware.bluetooth.enable = true;
