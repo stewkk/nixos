@@ -101,7 +101,8 @@ groups = [Group(i) for i in "1234567890"]
 def go_to_group(group):
     def f(qtile):
         if len(qtile.screens) == 1:
-            qtile.groups_map[group].toscreen()
+            qtile.cmd_to_screen(0)
+            qtile.groups_map[group].cmd_toscreen()
             return
         if group == '0':
             qtile.cmd_to_screen(0)
