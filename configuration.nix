@@ -11,6 +11,16 @@
       <home-manager/nixos>
     ];
 
+  fileSystems."/" =
+    { device = "/dev/disk/by-uuid/537466eb-d108-473b-be8a-5ef2ce7da43e";
+      fsType = "ext4";
+    };
+
+  fileSystems."/boot/efi" =
+    { device = "/dev/disk/by-uuid/97ED-4805";
+      fsType = "vfat";
+    };
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -18,26 +28,6 @@
   boot.loader.grub.useOSProber = true;
 
   networking.hostName = "nixos"; # Define your hostname.
-#  networking.wg-quick.interfaces = {
-#    
-#  wg0 = {
-#    address = [
-#      "10.13.13.5"
-#    ];
-#    peers = [
-#      {
-#        allowedIPs = [
-#          "0.0.0.0/0"
-#        ];
-#        endpoint = "176.124.209.25:51820";
-#        publicKey = "JR5Xg7DyPxnfICrNNHnUoAsaRSre8PC8QsqHlfnjJk4=";
-#	presharedKey = "R3u8u7et31/HOtY3y+0TJoHFfwhB6EXsX/ZASNoxL3M=";
-#      }
-#    ];
-#    privateKey = "wEnjIStDiUwxAADpYPBdAoHbl4gDfk6HCFcUDzy2ZFQ=";
-#    dns = ["10.13.13.1"];
-#  };
-#  };
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -64,6 +54,7 @@
   services.xserver = {
     enable = true;
     desktopManager.gnome.enable = true;
+    displayManager.gdm.enable = true;
   };
 
   programs.ssh.startAgent = true;
