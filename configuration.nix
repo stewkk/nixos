@@ -15,8 +15,29 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.efi.efiSysMountPoint = "/boot/efi";
+  boot.loader.grub.useOSProber = true;
 
   networking.hostName = "nixos"; # Define your hostname.
+#  networking.wg-quick.interfaces = {
+#    
+#  wg0 = {
+#    address = [
+#      "10.13.13.5"
+#    ];
+#    peers = [
+#      {
+#        allowedIPs = [
+#          "0.0.0.0/0"
+#        ];
+#        endpoint = "176.124.209.25:51820";
+#        publicKey = "JR5Xg7DyPxnfICrNNHnUoAsaRSre8PC8QsqHlfnjJk4=";
+#	presharedKey = "R3u8u7et31/HOtY3y+0TJoHFfwhB6EXsX/ZASNoxL3M=";
+#      }
+#    ];
+#    privateKey = "wEnjIStDiUwxAADpYPBdAoHbl4gDfk6HCFcUDzy2ZFQ=";
+#    dns = ["10.13.13.1"];
+#  };
+#  };
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -42,19 +63,7 @@
   # Configure keymap in X11
   services.xserver = {
     enable = true;
-    layout = "us,ru";
-    xkbOptions = "grp:alt_shift_toggle";
-    windowManager.qtile.enable = true;
-    libinput.enable = true;
-    libinput.touchpad = {
-      tapping = true;
-    };
-    videoDrivers = [ "intel" ];
-    xautolock = {
-      enable = true;
-      time = 5;
-      locker = "${pkgs.lightlocker}/bin/light-locker-command -l";
-    };
+    desktopManager.gnome.enable = true;
   };
 
   programs.ssh.startAgent = true;
@@ -123,7 +132,7 @@
       clang
 
       foliate # epub
-      zathura # pdf
+      # zathura # pdf
 
       man-pages
       man-pages-posix
@@ -147,21 +156,10 @@
       };
     };
 
-    xdg.configFile."qtile/config.py".source = configs/qtile.py;
-    xdg.configFile."qtile/autostart.sh".source = configs/autostart.sh;
-
     xdg.configFile."doom/config.el".source = configs/doom/config.el;
     xdg.configFile."doom/custom.el".source = configs/doom/custom.el;
     xdg.configFile."doom/init.el".source = configs/doom/init.el;
     xdg.configFile."doom/packages.el".source = configs/doom/packages.el;
-
-    gtk = {
-      enable = true;
-      theme = {
-        package = pkgs.gnome.gnome-themes-extra;
-        name = "Adwaita-dark";
-      };
-    };
   };
 
   nixpkgs.config = {
@@ -182,22 +180,10 @@
     ungoogled-chromium
     hack-font
     source-code-pro
-    nitrogen
-    polkit_gnome
-    brightnessctl
-    dmenu
-    maim
     tldr
-    xdotool
-    xclip
-    pavucontrol
+    #xdotool
     tdesktop
-    pyright
     mpv
-    lightlocker
-    pinentry-gtk2
-    gnumake
-    clang-tools
     direnv
   ];
 
@@ -217,7 +203,6 @@
 
   programs.gnupg.agent = {
     enable = true;
-    pinentryFlavor = "gtk2";
   };
 
   security.polkit.enable = true;
@@ -226,24 +211,6 @@
     source-code-pro
     hack-font
   ];
-
-  systemd = {
-    user.services.polkit-gnome-authentication-agent-1 = {
-      description = "polkit-gnome-authentication-agent-1";
-      wants = [ "graphical-session.target" ];
-      wantedBy = [ "graphical-session.target" ];
-      after = [ "graphical-session.target" ];
-      serviceConfig = {
-        Type = "simple";
-        ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-        Restart = "on-failure";
-        RestartSec = 1;
-        TimeoutStopSec = 10;
-      };
-    };
-  };
-
-  programs.dconf.enable = true; # for gtk config
 
   programs.tmux = {
     enable = true;
@@ -259,6 +226,7 @@
       set -ga terminal-overrides ",*256col*:Tc"
       set -ga terminal-overrides '*:Ss=\E[%p1%d q:Se=\E[ q'
       set-environment -g COLORTERM "truecolor"
+      set -g mouse on
 
       setw -g mode-keys vi
     '';
@@ -266,7 +234,6 @@
 
   documentation.dev.enable = true;
 
-  services.blueman.enable = true;
   hardware.bluetooth.enable = true;
 
   hardware.opengl.extraPackages = with pkgs; [
@@ -277,24 +244,10 @@
     intel-media-driver
   ];
 
-  services.picom = {
-    enable = true;
-    fade = true;
-    shadow = true;
-    fadeDelta = 4;
-  };
-
-  services.pipewire = {
-    enable = true;
-    wireplumber.enable = true;
-    pulse.enable = true;
-    audio.enable = true;
-  };
+  services.peerflix.enable = true;
 
   services.emacs.enable = true;
   services.emacs.defaultEditor = true;
-
-  programs.nm-applet.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -313,7 +266,7 @@
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  networking.firewall.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -327,7 +280,6 @@
     installDoomEmacs = ''
         if [ ! -d ~/.emacs.d ]; then
            "${pkgs.git}"/bin/git clone --depth=1 --single-branch "https://github.com/doomemacs/doomemacs.git" ~/.emacs.d
-           # git clone configRepoUrl "$XDG_CONFIG_HOME/doom"
         fi
       '';
   };
