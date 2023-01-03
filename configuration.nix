@@ -53,7 +53,45 @@
   # Configure keymap in X11
   services.xserver = {
     enable = true;
-    desktopManager.gnome.enable = true;
+    desktopManager.gnome = {
+      enable = true;
+      extraGSettingsOverrides = ''
+        # Change default background
+        [org.gnome.desktop.background]
+        picture-uri='file://${pkgs.nixos-artwork.wallpapers.mosaic-blue.gnomeFilePath}'
+        picture-uri-dark='file://${pkgs.nixos-artwork.wallpapers.mosaic-blue.gnomeFilePath}'
+
+        [org.gnome.desktop.input-sources]
+        sources=[('xkb', 'us'), ('xkb', 'ru')]
+
+        [org.gnome.desktop.wm.keybindings]
+        switch-input-source=['<Alt>Shift_L']
+        switch-input-source-backward=['<Shift>Alt_L']
+
+        [org.gnome.shell]
+        favorite-apps=['emacsclient.desktop', 'org.gnome.Console.desktop', 'chromium-browser.desktop', 'telegramdesktop.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Geary.desktop', 'org.gnome.Calendar.desktop', 'org.gnome.Evince.desktop', 'com.github.johnfactotum.Foliate.desktop']
+        disabled-extensions=['window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com']
+        app-picker-layout=[{'emacs.desktop': <{'position': <0>}>, 'org.gnome.Photos.desktop': <{'position': <1>}>, 'org.gnome.Calculator.desktop': <{'position': <2>}>, 'simple-scan.desktop': <{'position': <3>}>, 'org.gnome.Settings.desktop': <{'position': <4>}>, 'gnome-system-monitor.desktop': <{'position': <5>}>, 'nixos-manual.desktop': <{'position': <6>}>, 'org.gnome.Cheese.desktop': <{'position': <7>}>, 'Utilities': <{'position': <8>}>}]
+
+        [org.gnome.desktop.app-folders.folders.Utilities]
+        apps=['gnome-abrt.desktop', 'gnome-system-log.desktop', 'nm-connection-editor.desktop', 'org.gnome.baobab.desktop', 'org.gnome.Connections.desktop', 'org.gnome.DejaDup.desktop', 'org.gnome.Dictionary.desktop', 'org.gnome.DiskUtility.desktop', 'org.gnome.eog.desktop', 'org.gnome.Evince.desktop', 'org.gnome.FileRoller.desktop', 'org.gnome.fonts.desktop', 'org.gnome.seahorse.Application.desktop', 'org.gnome.tweaks.desktop', 'org.gnome.Usage.desktop', 'vinagre.desktop', 'umpv.desktop', 'org.gnome.TextEditor.desktop', 'mpv.desktop', 'kitty.desktop', 'org.gnome.Tour.desktop', 'yelp.desktop', 'org.gnome.Totem.desktop', 'org.gnome.Extensions.desktop', 'org.gnome.Maps.desktop', 'org.gnome.Weather.desktop', 'org.gnome.Contacts.desktop', 'org.gnome.clocks.desktop', 'nvim.desktop', 'xterm.desktop', 'org.gnome.Epiphany.desktop', 'org.gnome.Music.desktop']
+
+        [org.gnome.desktop.peripherals.touchpad]
+        natural-scroll=false
+        tap-to-click=true
+
+        [org.gnome.shell.app-switcher]
+        current-workspace-only=true
+
+        [org.gnome.shell.window-switcher]
+        current-workspace-only=true
+      '';
+
+      extraGSettingsOverridePackages = [
+        pkgs.gsettings-desktop-schemas # for org.gnome.desktop
+        pkgs.gnome.gnome-shell # for org.gnome.shell
+      ];
+    };
     displayManager.gdm.enable = true;
   };
 
@@ -94,7 +132,7 @@
     home.sessionVariables = {
       EDITOR = "nvim";
       BROWSER = "chromium";
-      TERMINAL = "kitty";
+      TERMINAL = "kgx";
     };
 
     programs.bash = {
@@ -106,7 +144,7 @@
       sessionVariables = {
         EDITOR = "nvim";
         BROWSER = "chromium";
-        TERMINAL = "kitty";
+        TERMINAL = "kgx";
       };
       initExtra = ''
           . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
@@ -127,25 +165,9 @@
 
       man-pages
       man-pages-posix
-    ];
 
-    programs.kitty = {
-      enable = true;
-      font = {
-        package = pkgs.hack-font;
-        name = "monospace";
-      };
-      theme = "Tokyo Night";
-      settings = {
-        font_size = 14;
-        cursor_blink_interval = 0;
-        scrollback_pager_history_size = 4;
-        enable_audio_bell = "no";
-        update_check_interval = 0;
-        confirm_os_window_close  = 0;
-        scrollback_pager = ''nvim  -c "set nonumber nolist showtabline=0 foldcolumn=0" -c "autocmd TermOpen * normal G" -c "silent write! /tmp/kitty_scrollback_buffer | te cat /tmp/kitty_scrollback_buffer - "'';
-      };
-    };
+      xournalpp
+    ];
 
     xdg.configFile."doom/config.el".source = configs/doom/config.el;
     xdg.configFile."doom/custom.el".source = configs/doom/custom.el;
@@ -155,12 +177,15 @@
 
   nixpkgs.config = {
     allowUnfree = true;
-    packageOverrides = pkgs: rec {
-      dmenu = pkgs.dmenu.override {
-        patches = [ ./configs/dmenu/tokyo-night.diff ];
-      };
-    };
   };
+
+  nixpkgs.overlays = [
+    (final: prev: {
+      gnome = prev.gnome.overrideScope' (gfinal: gprev: {
+        mutter = prev.gnome.mutter.overrideAttrs (o: { patches = o.patches ++ [ ./configs/mutter/0001-Revert-backends-native-Disable-touch-mode-with-point.patch ]; });
+      });
+    })
+  ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -172,7 +197,6 @@
     hack-font
     source-code-pro
     tldr
-    #xdotool
     tdesktop
     mpv
     direnv
@@ -226,6 +250,7 @@
   documentation.dev.enable = true;
 
   hardware.bluetooth.enable = true;
+  hardware.sensor.iio.enable = true;
 
   hardware.opengl.extraPackages = with pkgs; [
     vaapiIntel
