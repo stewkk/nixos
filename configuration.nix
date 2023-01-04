@@ -215,6 +215,14 @@
   services.pcscd.enable = true;
 
   services.lorri.enable = true;
+  security.rtkit.enable = true;
+
+  services.pipewire = {
+    enable = true;
+    pulse.enable = true;
+    alsa.enable = true;
+  };
+  hardware.pulseaudio.enable = false;
 
   programs.gnupg.agent = {
     enable = true;
