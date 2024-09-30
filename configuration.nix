@@ -182,7 +182,7 @@
   nixpkgs.overlays = [
     (final: prev: {
       gnome = prev.gnome.overrideScope' (gfinal: gprev: {
-        mutter = prev.gnome.mutter.overrideAttrs (o: { patches = o.patches ++ [ ./configs/mutter/0001-Revert-backends-native-Disable-touch-mode-with-point.patch ]; });
+        mutter = prev.gnome.mutter.overrideAttrs (old: { patches = old.patches or [  ] ++ [ ./configs/mutter/0001-Revert-backends-native-Disable-touch-mode-with-point.patch ]; });
       });
     })
   ];
