@@ -26,6 +26,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.efi.efiSysMountPoint = "/boot/efi";
   boot.loader.grub.useOSProber = true;
+  boot.loader.grub.default = "saved";
 
   networking.hostName = "nixos"; # Define your hostname.
 
@@ -267,8 +268,6 @@
     intel-compute-runtime
     intel-media-driver
   ];
-
-  services.peerflix.enable = true;
 
   services.emacs.enable = true;
   services.emacs.defaultEditor = true;

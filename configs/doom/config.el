@@ -124,7 +124,6 @@
 		:html-foreground "Black" :html-background "Transparent"
 		:html-scale 1.0 :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
 
-(setq geiser-repl-use-other-window nil)
 (map! "C-z" nil)
 
 (setq lsp-clients-clangd-args '("-j=3"
