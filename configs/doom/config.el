@@ -126,8 +126,7 @@
 
 (map! "C-z" nil)
 
-(setq lsp-clients-clangd-args '("-j=3"
-                                "--background-index"
+(setq lsp-clients-clangd-args '("--background-index"
                                 "--clang-tidy"
                                 "--completion-style=detailed"
                                 "--header-insertion=never"
