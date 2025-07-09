@@ -104,12 +104,14 @@
   programs.neovim.viAlias = true;
 
   virtualisation.docker.enable = true;
+  virtualisation.incus.enable = true;
+  networking.nftables.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.st = {
     isNormalUser = true;
     description = "Alexandr Starovoytov";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "incus-admin" ];
     packages = with pkgs; [];
   };
 
@@ -129,6 +131,7 @@
 
     # Let Home Manager install and manage itself.
     programs.home-manager.enable = true;
+
 
     home.sessionVariables = {
       EDITOR = "nvim";
@@ -201,6 +204,7 @@
     tdesktop
     mpv
     direnv
+    neofetch
   ];
 
   programs.git = {
@@ -290,6 +294,56 @@
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   networking.firewall.enable = true;
+
+  networking.firewall.interfaces.incusbr0.allowedTCPPorts = [
+    53
+    67
+  ];
+  networking.firewall.interfaces.incusbr0.allowedUDPPorts = [
+    53
+    67
+  ];
+
+  virtualisation.incus.preseed = {
+    networks = [
+      {
+        config = {
+          "ipv4.address" = "10.0.100.1/24";
+          "ipv4.nat" = "true";
+        };
+        name = "incusbr0";
+        type = "bridge";
+      }
+    ];
+    profiles = [
+      {
+        devices = {
+          eth0 = {
+            name = "eth0";
+            network = "incusbr0";
+            type = "nic";
+          };
+          root = {
+            path = "/";
+            pool = "default";
+            size = "35GiB";
+            type = "disk";
+          };
+        };
+        name = "default";
+      }
+    ];
+    storage_pools = [
+      {
+        config = {
+          source = "/var/lib/incus/storage-pools/default";
+        };
+        driver = "dir";
+        name = "default";
+      }
+    ];
+  };
+
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
