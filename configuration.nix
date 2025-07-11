@@ -32,6 +32,18 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
+  # networking.networkmanager.dns = "none";
+  networking.nameservers = [ "1.1.1.1" "8.8.8.8" ];
+  networking.useDHCP = false;
+  networking.dhcpcd.enable = false;
+
+  services.resolved = {
+    enable = true;
+    dnssec = "false";
+    domains = [ "~." ];
+    fallbackDns = [ "1.0.0.1" ];
+    dnsovertls = "false";
+  };
 
   # Set your time zone.
   time.timeZone = "Europe/Moscow";
