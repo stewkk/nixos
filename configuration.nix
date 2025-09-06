@@ -197,7 +197,7 @@
 
   nixpkgs.overlays = [
     (final: prev: {
-      gnome = prev.gnome.overrideScope' (gfinal: gprev: {
+      gnome = prev.gnome.overrideScope (gfinal: gprev: {
         mutter = prev.gnome.mutter.overrideAttrs (old: { patches = old.patches or [  ] ++ [ ./configs/mutter/0001-Revert-backends-native-Disable-touch-mode-with-point.patch ]; });
       });
     })
@@ -247,7 +247,7 @@
 
   security.polkit.enable = true;
 
-  fonts.fonts = with pkgs; [
+  fonts.packages = with pkgs; [
     source-code-pro
     hack-font
   ];
